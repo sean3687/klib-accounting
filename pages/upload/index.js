@@ -49,7 +49,10 @@ function UploadPage() {
     setIsStructureModalOpen(true);
     setSelectedDataId(id);
   };
-  const closeStructureModal = () => setIsStructureModalOpen(false);
+  const closeStructureModal = (e) => {
+    e.stopPropagation();
+    setIsStructureModalOpen(false);
+  }
 
   useEffect(() => {
     if (!accessToken) {
@@ -570,30 +573,14 @@ function UploadPage() {
                               )
                             } */}
                             <Modal
-                              className="modal"
+                              className="modal "
                               overlayClassName="modal-overlay"
                               isOpen={
                                 isStructureModalOpen &&
                                 selectedDataId == item.id
                               }
                             >
-                              {/* <div className="text-xl flex">
-                                <div
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    closeStructureModal(false);
-                                  }}
-                                >
-                                  Back to files
-                                </div>
-                                <div className="flex mr-0 ml-auto">
-                                  <div> | </div>
-                                  <div>Automation Status</div>
-                                  <div>Save</div>
-                                </div>
-                                
-                              </div> */}
-                              <PromptController itemId= {item.id} type={"Receipts"}/>
+                              <PromptController itemId={item.id} onClose={closeStructureModal} type={"Receipts"}/>
                               
                             </Modal>
                           </button>
