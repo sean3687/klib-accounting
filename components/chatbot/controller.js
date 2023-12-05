@@ -23,25 +23,14 @@ function Controller() {
   const chatId = router.query.id;
 
   useEffect(() => {
+    
     let intervalId;
-    console.log("This is savedChatId", savedChatId);
+    console.log("This is savedChatId 11", savedChatId);
     console.log("This is chatId", chatId);
-    if (savedChatId !== chatId && chatId) {
-      //when you switch to another chat
-     console.log("tab swtiched")
-      setChatArray([]);
-      getChatMessages(chatId);
-      setSavedChatId("current_chatId", chatId);
-      
-    }
-
-    if( savedChatId === chatId && chatArray.length === 0 && chatId){
-      //when you refresh the page
-      getChatMessages(chatId);
-    }
 
     if (isSendChatLoading) {
       //when you send a message
+      
       intervalId = setInterval(async () => {
         if (chatId) {
           let chatStatus = await getChatStatus(chatId);
@@ -50,15 +39,31 @@ function Controller() {
         }
       }, 1000);
     }
+    if (savedChatId !== chatId && chatId) {
+      //when you switch to another chat
+     console.log("tab swtiched")
+      setChatArray([]);
+      getChatMessages(chatId);
+      setSavedChatId(chatId);
+      
+    }
+
+    if( savedChatId === chatId && chatArray.length === 0 && chatId){
+      //when you refresh the page
+      getChatMessages(chatId);
+    }
+
+    
 
     return () => {
       if (intervalId) {
         clearInterval(intervalId);
       }
     };
-  }, [chatId, savedChatId]);
+  }, [chatId, savedChatId, isSendChatLoading]);
 
   const sendMessageClick = async () => {
+    console.log("chekcing: " ,isSendChatLoading)
     setIsSendChatLoading(true);
     const currentInputText = inputText;
     let chatId = router.query.id;
@@ -111,7 +116,7 @@ function Controller() {
 
     try {
       const response = await fetch(
-        `https://chitchatrabbit.me/chain/${chatId}/?message=${encodeURIComponent(
+        `https://chitchatrabbit.me/klib/chain/${chatId}/?message=${encodeURIComponent(
           inputText
         )}`,
 
@@ -161,6 +166,7 @@ function Controller() {
           console.log("this is finalBot Message", finalBotMessage);
           addChatArray(finalBotMessage);
           setIsSendChatLoading(false);
+          
           setStreamingResponse("");
           return;
         }

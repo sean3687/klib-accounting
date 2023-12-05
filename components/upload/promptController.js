@@ -1,24 +1,24 @@
-import React from "react";
+import React, {useState} from "react";
 import PromptReceipts from "./promptReceipts";
 import PromptBankStatements from "./promptBankStatements";
 
-function PromptController({ isOpen, onClose, itemId, type }) {
-  if (!isOpen) return null;
-  
+function PromptController({itemId }) {
+
+  const [formData, setFormData] = useState("");
+  const type = "Receipts"
   return (
-    <div className="fixed z-10 inset-0 overflow-y-auto bg-white">
-      <div className="text-xl flex">
-        <div onClick={onClose}>Back to files</div>
+    <div className="overflow-y-auto bg-white">
+      <div className="text-md w-full flex p-2 border-b">
+        <div className="text-xl font-bold">{type}</div>
         <div className="flex mr-0 ml-auto">
-          <div> | </div>
-          <div>Automation Status</div>
-          <div>Save</div>
+          <div className="mr-2">sync</div>
+          <div>options</div>
         </div>
       </div>
       <>
-        {type === "general" && <PromptReceipts />}
-        {type === "receipts" && <PromptReceipts />}
-        {type === "bankStatements" && <PromptBankStatements />}
+        {type === "General" && <PromptReceipts setFormData={setFormData}/>}
+        {type === "Receipts" && <PromptReceipts />}
+        {type === "BankStatements" && <PromptBankStatements />}
       </>
     </div>
   );

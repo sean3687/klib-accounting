@@ -1,17 +1,16 @@
 import React from "react";
 import { useState, useEffect } from "react";
 
-function PromptReceipts() {
-
+function PromptReceipts({ formData, setFormData }) {
+  const [localFormData, setLocalFormData] = useState(formData);
   const fields = [
     { id: "dateTime", label: "Date/Time", type: "date" },
     { id: "businessName", label: "Business Name", type: "text" },
     { id: "address", label: "Address", type: "text" },
     { id: "contract", label: "Contract", type: "text" },
     { id: "itemsPurchased", label: "Items Purchased", type: "text" },
-    { id: "price", label: "Price", type: "price" },
-    { id: "tax", label: "Tax", type: "number", currency: true },
-    { id: "price", label: "Price", type: "price" },
+    { id: "price", label: "Price", type: "text" },
+    { id: "tax", label: "Tax", type: "number"},
     { id: "paymentMethod", label: "Payment Method", type: "text" },
     { id: "transactionNumber", label: "Transaction Number", type: "text" },
     { id: "cashierName", label: "Cashier/Server Name", type: "text" },
@@ -20,10 +19,9 @@ function PromptReceipts() {
     { id: "notes", label: "Notes", type: "textarea" },
   ];
 
-  const initialFormData = fields.reduce((acc, field) => {
-    acc[field.id] = "";
-    return acc;
-  }, {});
+  useEffect(() => {
+    setLocalFormData(formData);
+  }, [formData]);
 
   const formatPrice = (value) => {
     return `$${parseFloat(value).toFixed(2)}`;
@@ -37,35 +35,24 @@ function PromptReceipts() {
       .padStart(2, "0")}/${date.getFullYear()}`;
   };
 
-  const [formData, setFormData] = useState(initialFormData);
   const handleFieldChange = (fieldId, value) => {
-    if (fields.find((field) => field.id === fieldId).currency) {
-      value = value.replace(/^\$/, ""); // Remove leading dollar sign
-    }
-    setFormData({ ...formData, [fieldId]: value });
+    const updatedFormData = { ...localFormData, [fieldId]: value };
+    setLocalFormData(updatedFormData);
+    setFormData(updatedFormData);
   };
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    console.log(formData); // Here you can handle the form submission
+    setFormData(event.target.value)
   };
 
   return (
     <>
       {/* this is navigation */}
-      <div className="border rounded-md m-10">
-        {/* table header */}
-        <div className="text-xl w-full flex">
-          <div className="">Receipts</div>
-          <div className="flex mr-0 ml-auto">
-            <div className="mr-2">sync</div>
-            <div>options</div>
-          </div>
-          <div className="border-b"></div>
-        </div>
+      <div className="m-10">
         {/* table body */}
         <div className="flex">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4">
             {fields.map((field) => (
               <div key={field.id} className="flex flex-col">
                 <label
@@ -78,7 +65,7 @@ function PromptReceipts() {
                   <textarea
                     id={field.id}
                     className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                    value={formData[field.id]}
+                    // value={formData[field.id]}
                     onChange={(e) =>
                       handleFieldChange(field.id, e.target.value)
                     }
@@ -88,7 +75,7 @@ function PromptReceipts() {
                     type="text"
                     id={field.id}
                     className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                    value={formatPrice(formData[field.id])}
+                    // value={formatPrice(formData[field.id])}
                     onChange={(e) =>
                       handleFieldChange(
                         field.id,
@@ -101,7 +88,7 @@ function PromptReceipts() {
                     type="date"
                     id={field.id}
                     className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                    value={formData[field.id]}
+                    // value={formData[field.id]}
                     onChange={(e) =>
                       handleFieldChange(field.id, e.target.value)
                     }
@@ -111,7 +98,7 @@ function PromptReceipts() {
                     type="text"
                     id={field.id}
                     className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                    value={formData[field.id]}
+                    // value={formData[field.id]}
                     onChange={(e) =>
                       handleFieldChange(field.id, e.target.value)
                     }

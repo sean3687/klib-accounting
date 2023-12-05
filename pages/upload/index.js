@@ -29,7 +29,8 @@ function UploadPage() {
   const [documentList, setDocumentList] = useState([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedID, setSelectedID] = useState(null);
-  const [structureDataId, setStructureDataId] = useState(null);
+  // const [structureDataId, setStructureDataId] = useState(null);
+  const [selectedDataId, setSelectedDataId] = useState(null);
   const [deleteStatus, setDeleteStatus] = useState("");
   const fileInput = useRef(null);
   const [hoveredID, setHoveredID] = useState(null);
@@ -42,13 +43,13 @@ function UploadPage() {
   const [typingTimeout, setTypingTimeout] = useState(null);
   const [accessToken] = useSessionStorage("accessToken", "");
   const router = useRouter();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isStructureModalOpen, setIsStructureModalOpen] = useState(false);
 
-  const openModal = (id) => {
-    setIsModalOpen(true);
-    setStructureDataId(id);
+  const openStructureModal = (id) => {
+    setIsStructureModalOpen(true);
+    setSelectedDataId(id);
   };
-  const closeModal = () => setIsModalOpen(false);
+  const closeStructureModal = () => setIsStructureModalOpen(false);
 
   useEffect(() => {
     if (!accessToken) {
@@ -185,7 +186,7 @@ function UploadPage() {
 
     try {
       const response = await axios.post(
-        "https://chitchatrabbit.me/uploadfiles",
+        "https://chitchatrabbit.me/klib/uploadfiles",
         formData,
         {
           headers: {
@@ -546,27 +547,57 @@ function UploadPage() {
                           </button>
                           <button
                             onClick={() => {
-                              openModal(item.id);
+                              openStructureModal(item.id);
                             }}
                             className="relative transform transition-transform hover:scale-105 active:scale-95 px-2"
                           >
                             <div className="relative group">
                               <PiTreeStructureDuotone />
 
-                              <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-black text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 px-3 py-1 bg-black text-white text-xs rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
                                 Structure Data
                               </div>
                             </div>
-                            <PromptController
+                            {/* {
+                              isStructureModalOpen && selectedDataId === item.id &&  (
+                                <PromptController
+                                  
+                                  onClose={closeModal}
+                                  itemId={selectedDataId}
+                                  type="receipts"
+                                  overlayClassName="modal-overlay"
+                                />
+                              )
+                            } */}
+                            <Modal
                               className="modal"
                               overlayClassName="modal-overlay"
-                              isOpen={isModalOpen && structureDataId == item.id}
-                              onClose={closeModal}
-                              itemId={structureDataId}
-                              type="receipts"
+                              isOpen={
+                                isStructureModalOpen &&
+                                selectedDataId == item.id
+                              }
+                            >
+                              {/* <div className="text-xl flex">
+                                <div
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    closeStructureModal(false);
+                                  }}
+                                >
+                                  Back to files
+                                </div>
+                                <div className="flex mr-0 ml-auto">
+                                  <div> | </div>
+                                  <div>Automation Status</div>
+                                  <div>Save</div>
+                                </div>
+                                
+                              </div> */}
+                              <PromptController itemId= {item.id} type={"Receipts"}/>
                               
-                            />
+                            </Modal>
                           </button>
+
                           <button
                             onClick={() => {
                               summarizeDocumentClick(item.id, index);
@@ -598,7 +629,6 @@ function UploadPage() {
                             <Modal
                               className="modal"
                               isOpen={deleteModalOpen && selectedID == item.id}
-                              onRequestClose={() => setDeleteModalOpen(false)}
                               overlayClassName="modal-overlay"
                             >
                               <h2 className="text-lg font-bold">
