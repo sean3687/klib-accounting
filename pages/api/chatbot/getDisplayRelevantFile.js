@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await axios.post(
-      `https://chitchatrabbit.me/klib/display_relevant_file`,body,
+      `https://chitchatrabbit.me/cpal/display_relevant_file`,body,
       {
         headers: {
           "Content-Type": "application/json",

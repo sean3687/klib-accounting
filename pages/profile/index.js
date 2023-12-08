@@ -72,7 +72,7 @@ function ProfilePage({ accessToken, name }) {
     };
     try {
       const response = await axios.post(
-        "https://chitchatrabbit.me/klib/set_api",
+        "https://chitchatrabbit.me/cpal/set_api",
         bodyRequest,
         {
           headers: {

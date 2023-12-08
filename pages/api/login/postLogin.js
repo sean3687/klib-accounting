@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await axios.post(
-      "https://chitchatrabbit.me/klib/token",
+      "https://chitchatrabbit.me/cpal/token",
       bodyRequest,
       {
         headers: header,

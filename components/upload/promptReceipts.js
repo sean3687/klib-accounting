@@ -78,7 +78,7 @@ function PromptReceipts({ formData, setFormData }) {
                   <input
                     type="text"
                     id={field.id}
-                    className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                    className="min-w-fit  p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
                     value={formData[field.id] || ""}
                     onChange={(e) =>
                       handleFieldChange(field.id, e.target.value)

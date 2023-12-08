@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   const { message, chat_id } = req.body;
 
   try {
-    const response = await axios.post("https://chitchatrabbit.me/klib/chain", {
+    const response = await axios.post("https://chitchatrabbit.me/cpal/chain", {
       message: message,
       chat_id: chat_id
     }, {

@@ -26,7 +26,6 @@ function PromptController({ itemId, onClose }) {
   const [preview, setPreview] = useState("");
 
   useEffect(() => {
-    console.log("download called");
     fetchStructureData();
     getDownloadDocument(itemId);
   }, []);
@@ -39,7 +38,21 @@ function PromptController({ itemId, onClose }) {
 
   const updateStructureData = (e) => {
     console.log("This is form data", formData);
-    onClose(e);
+    try {
+      postToStructureData(formData)
+      .then((response) => {
+        console.log("this is response", response);
+
+        if (response.status === 200) {
+          console.log("Posted to StructureData");
+        }
+        onClose(e);
+      });
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+    
+    
   };
 
   async function getDownloadDocument(id) {
@@ -73,8 +86,31 @@ function PromptController({ itemId, onClose }) {
     }
   }
 
+  async function postToStructureData(formData){
+    try {
+      console.log("this is form data", formData);
+      const response = await axios.post(
+        `/api/upload/postToSQL`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          responseType: "arraybuffer",
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("Posted to StructureData");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  }
+
   return (
-    <div className="bg-white">
+    <div className="bg-white w-full">
       <div className="text-md w-full flex p-2 border-b">
         <div className="text-xl font-bold">{type}</div>
         <div className="flex mr-0 ml-auto">
@@ -83,7 +119,7 @@ function PromptController({ itemId, onClose }) {
         </div>
       </div>
       <div className="flex">
-        <div className="max-h-[60vh] overflow-y-scroll flex">
+        <div className="max-h-[60vh] overflow-y-scroll flex min-w-fit">
           {/* Form */}
           <div>
             {type === "General" && (
@@ -96,14 +132,13 @@ function PromptController({ itemId, onClose }) {
           </div>
         </div>
         {/* Preview */}
-        <div className="border p-2 m-2">
+        <div className="border p-2 m-2 relative w-full ">
           <iframe
+            className="absolute inset-0 w-full h-full"
             src={preview}
             frameborder="0"
-            allowfullscreen
             width={window.innerWidth / 50 - 100}
             height="100%"
-            class="iframe"
           ></iframe>
         </div>
       </div>

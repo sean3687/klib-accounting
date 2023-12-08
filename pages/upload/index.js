@@ -52,7 +52,7 @@ function UploadPage() {
   const closeStructureModal = (e) => {
     e.stopPropagation();
     setIsStructureModalOpen(false);
-  }
+  };
 
   useEffect(() => {
     if (!accessToken) {
@@ -145,7 +145,7 @@ function UploadPage() {
         `/api/upload/getFileUploadStatus?file_id=${fileId}`,
         {
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
         }
@@ -171,8 +171,12 @@ function UploadPage() {
         status = await getFileUploadStatus(inqueue[i].file_id);
       }
 
-      if (status === "completed" || status === "error") {
-        console.log("processFiles getFileUploadStatus error", status);
+      if (status === "to_verify" || status === "Needs Confirm") {
+        await fetchUploadedDocuments(accessToken);
+        continue; // move to the next file
+      }
+
+      if (status === "verified" || status === "Confirmed") {
         await fetchUploadedDocuments(accessToken);
         continue; // move to the next file
       }
@@ -189,7 +193,7 @@ function UploadPage() {
 
     try {
       const response = await axios.post(
-        "https://chitchatrabbit.me/klib/uploadfiles",
+        "https://chitchatrabbit.me/cpal/uploadfiles",
         formData,
         {
           headers: {
@@ -344,13 +348,32 @@ function UploadPage() {
               <div className="ml-1">In-progress</div>
             </div>
           </button>
+        ) : fileStatus === "extracting" ? (
+          <button className="relative transform transition-transform hover:scale-105 active:scale-95 px-2">
+            <div className="relative group text-xs bg-green-500 px-2 py-1 rounded-lg text-white">
+              Extracting
+            </div>
+          </button>
+        ) : fileStatus === "to_verify" ? (
+          <button className="relative transform transition-transform hover:scale-105 active:scale-95 px-2">
+            <div className="relative group text-xs bg-green-500 px-2 py-1 rounded-lg text-white">
+              Need Confirm
+            </div>
+          </button>
+        ) : fileStatus === "verified" ? (
+          <button className="relative transform transition-transform hover:scale-105 active:scale-95 px-2">
+            <div className="relative group text-xs bg-green-500 px-2 py-1 rounded-lg text-white">
+              Completed
+            </div>
+          </button>
         ) : fileStatus === "completed" ? (
           <button className="relative transform transition-transform hover:scale-105 active:scale-95 px-2">
             <div className="relative group text-xs bg-green-500 px-2 py-1 rounded-lg text-white">
               Completed
             </div>
           </button>
-        ) : (
+        ) :
+        (
           <button className="relative transform transition-transform hover:scale-105 active:scale-95 px-2">
             <div className="relative group text-xs bg-red-500 px-2 py-1 rounded-lg text-white">
               Error
@@ -508,7 +531,7 @@ function UploadPage() {
                           {item.file_name}
                         </td>
                         <td className="whitespace-nowrap text-center py-4 text-sm text-gray-700 truncate text-ellipsis max-w-[10rem]">
-                          Recipts
+                          {item.type}
                         </td>
                         <td className="whitespace-nowrap text-center py-4 text-sm text-gray-700 truncate text-ellipsis max-w-[10rem]">
                           {formatDate(item.upload_time)}
@@ -561,17 +584,6 @@ function UploadPage() {
                                 Structure Data
                               </div>
                             </div>
-                            {/* {
-                              isStructureModalOpen && selectedDataId === item.id &&  (
-                                <PromptController
-                                  
-                                  onClose={closeModal}
-                                  itemId={selectedDataId}
-                                  type="receipts"
-                                  overlayClassName="modal-overlay"
-                                />
-                              )
-                            } */}
                             <Modal
                               className="modal "
                               overlayClassName="modal-overlay"
@@ -580,8 +592,11 @@ function UploadPage() {
                                 selectedDataId == item.id
                               }
                             >
-                              <PromptController itemId={item.id} onClose={closeStructureModal} type={"Receipts"}/>
-                              
+                              <PromptController
+                                itemId={item.id}
+                                onClose={closeStructureModal}
+                                type={item.type}
+                              />
                             </Modal>
                           </button>
 
