@@ -22,7 +22,8 @@ import withLayout from "../../components/layouts/withLayout";
 import formatDate from "../../utils/dateFormat";
 import { toast, Toaster } from "react-hot-toast";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
-import PromptController from "../../components/upload/promptController";
+import PromptController from "../../components/promptStructure/promptController";
+import capitalizeFirstChar from "../../utils/capitalizeFirstString";
 
 function UploadPage() {
   const [filesUpload, setFilesUpload] = useState([]);
@@ -131,6 +132,8 @@ function UploadPage() {
     fileInput.current.click();
   }
 
+ 
+
   function handleFileChange(event) {
     setFilesUpload([...event.target.files]);
     console.log("this is files" + filesUpload.name);
@@ -181,6 +184,16 @@ function UploadPage() {
         continue; // move to the next file
       }
     }
+  }
+
+  async function getAutoFill(file_id, file_type) {
+    const response = await axios.get(`/api/upload/getAutoFill?file_id=${file_id}&file_type=${file_type}`, 
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+    });
   }
 
   async function handleFilesUpload(files) {
@@ -531,7 +544,7 @@ function UploadPage() {
                           {item.file_name}
                         </td>
                         <td className="whitespace-nowrap text-center py-4 text-sm text-gray-700 truncate text-ellipsis max-w-[10rem]">
-                          {item.type}
+                          {capitalizeFirstChar(item.type)}
                         </td>
                         <td className="whitespace-nowrap text-center py-4 text-sm text-gray-700 truncate text-ellipsis max-w-[10rem]">
                           {formatDate(item.upload_time)}
@@ -595,7 +608,7 @@ function UploadPage() {
                               <PromptController
                                 itemId={item.id}
                                 onClose={closeStructureModal}
-                                type={item.type}
+                                type={capitalizeFirstChar(item.type)}
                               />
                             </Modal>
                           </button>

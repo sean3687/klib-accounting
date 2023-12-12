@@ -1,7 +1,9 @@
-const handler = async (req, res) => {
+import axios from "axios"
+
+export default async function handler(req, res){
     const token = req.headers.authorization.split(" ")[1];
     const file_id = req.query.file_id;
-    
+    console.log("this is file id",file_id)
     try {
         const response = await axios.get(`https://chitchatrabbit.me/cpal/get_json_data?hashed_file_id=${file_id}`, {
             headers: {
@@ -15,7 +17,7 @@ const handler = async (req, res) => {
     } catch (error) {
         
         res.status(500).json({
-            data: "error"
+            data: error.message
         });
     }
 }

@@ -1,6 +1,9 @@
-const handler = async (req, res) => {
+import axios from "axios";
+
+export default async function handler(req, res){
     const token = req.headers.authorization.split(" ")[1];
-    const formdata = req.body.formdata;
+    const formdata = req.body.data;
+    console.log("this is form data 22",formdata)
     
     try {
         const response = await axios.post(`https://chitchatrabbit.me/cpal/verify_receipt`, formdata,{

@@ -15,7 +15,6 @@ import { GrClose } from "react-icons/gr";
 
 const HamburgerNavbar = () => {
   const [signedUser, setSignedUser] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [drawerOpen, setdrawerOpen] = useState(false);
   const [token, setToken] = useState("");
   const [selectedTabIndex, setSelectedTabIndex] = useState(0);
