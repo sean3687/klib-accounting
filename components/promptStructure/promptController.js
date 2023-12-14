@@ -5,12 +5,15 @@ import axios from "axios";
 import { PiWarningCircle } from "react-icons/pi";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import ThumbnailManager from "./thumbnailmanager";
-import Dropdown from "./documentTypeDropdown";
+import DocumentTypeDropdown from "./documentTypeDropdown";
+import PromptOptionDropdown from "./promptOptionDropdown";
 import PromptGeneral from "./promptGeneral";
+import PromptMessageController from "./promptMessageManager";
 
 function PromptController({ itemId, onClose, type }) {
   const [accessToken] = useSessionStorage("accessToken", "");
   const [documentType, setDocumentType] = useState(type);
+  const [extractStatus, setExtractStatus] = useState("");
   const initialFormData = {
     date_time: "",
     vendor_name: "",
@@ -50,7 +53,7 @@ function PromptController({ itemId, onClose, type }) {
   useEffect(() => {
     fetchStructureData();
     getDownloadDocument(itemId);
-    console.log("here is preview", documentType);
+    console.log("this is extracted status", extractStatus)
   }, []);
 
   useEffect(() => {
@@ -146,74 +149,77 @@ function PromptController({ itemId, onClose, type }) {
     }
   }
 
-  function PromptMessageController({ message }) {
-    //initiate extraction first
-    //extracting document
-    //sync ready
-    //failed
-    //sync ready
-    if (message === "requireExtraction") {
-      return (
-        <div className="text-xs bg-orange-200 rounded-md px-2 py-1 text-gray-700 flex items-center justify-center mr-2">
-          <PiWarningCircle className="text-xl font-bold" />
-          <div>Please initiate Extraction first</div>
-        </div>
-      );
-    }
+  async function extractStructureData(){
+    
+    getAutoFill()
 
-    if (message === "extracting") {
-      return (
-        <div className="text-xs bg-yellow-200 rounded-md px-2 py-1 text-gray-700 flex items-center justify-center mr-2">
-          <PiWarningCircle className="text-xl font-bold" />
-          <div>Extracting document</div>
-        </div>
-      );
-    }
+    const status = getExtractStatus
 
-    if (message === "syncReady") {
-      return (
-        <div className="text-xs bg-green-200 rounded-md px-2 py-1 text-gray-700 flex items-center justify-center mr-2">
-          <PiWarningCircle className="text-xl font-bold" />
-          <div>Sync ready</div>
-        </div>
-      );
-    }
+    console.log("status jjj", status)
+    
+    
+  }
 
-    if (message === "failed") {
-      return (
-        <div className="text-xs bg-red-200 rounded-md px-2 py-1 text-gray-700 flex items-center justify-center mr-2">
-          <PiWarningCircle className="text-xl font-bold" />
-          <div>Failed</div>
-        </div>
+  async function getAutoFill(){
+    let item_id = itemId
+    let file_type = documentType
+
+    console.log("item_id and file_type", item_id," ", file_type)
+    try {
+      const response = await axios.get(
+        `/api/upload/getAutoFill?file_type=${file_type}&file_id=${itemId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
       );
-    }
-    if (message === "") {
-      return (
-        <div className="">
-          
-        </div>
-      );
+
+      if (response.status === 200) {
+        console.log("Posted to StructureData");
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
     }
   }
+
+  async function getExtractStatus() {
+    let item_id = itemId
+    try {
+      const response = await axios.get(
+        `https://chitchatrabbit.me/cpal/auto_fill_status?hashed_file_id=${item_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      setExtractStatus(response.data.status)
+
+      if (response.status === 200) {
+        return response.data.status
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  }
+
 
   return (
     <div className="bg-white w-full">
       <div className="text-md w-full flex p-2 border-b items-center justify-center">
         <div className="text-xl font-bold h-full">
-          <Dropdown
+          <DocumentTypeDropdown
             documentType={documentType}
             setDocumentType={setDocumentType}
+            setExtractStatus={setExtractStatus}
           />
         </div>
         <div className="flex ml-auto items-center">
-          <PromptMessageController message={"requireExtraction"} />
-          <div
-            className="mr-2 text-md cursor-pointer"
-            onClick={fetchStructureData}
-          >
-            sync
-          </div>
-          <div>Options</div>
+          <PromptMessageController message={extractStatus} />
+          <PromptOptionDropdown fetchStructureData={fetchStructureData} extractStructureData={extractStructureData}/>
         </div>
       </div>
 
@@ -231,8 +237,8 @@ function PromptController({ itemId, onClose, type }) {
           </div>
         </div>
         {/* Preview */}
-        <div className="bg-slate-50 py-5 px-5  max-w-[40vh]">
-          <div className="text-sm font-semibold mt-5 mb-2 text-gray-600 ">
+        <div className="bg-slate-50 py-5 px-5  max-w-[40vh] min-h-[60vh]">
+          <div className="text-sm font-semibold mb-2 text-gray-600 ">
             Document preview
           </div>
           <ThumbnailManager preview={preview} type={fileType} />

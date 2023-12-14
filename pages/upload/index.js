@@ -347,6 +347,7 @@ function UploadPage() {
   }
 
   function UploadstatusIndication({ fileStatus }) {
+    console.log("file Status", fileStatus)
     return (
       <div>
         {fileStatus === "uploading" ? (

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
-function Dropdown({documentType,setDocumentType}) {
+function DocumentTypeDropdown({documentType,setDocumentType, setExtractStatus}) {
   const [isOpen, setIsOpen] = useState(false);
   const [type, setType] = useState(documentType);
   const toggleDropdown = () => setIsOpen(!isOpen);
 
   const handleOptionClick = (option) => {
     setDocumentType(option);
+    setExtractStatus("requireExtraction")
     setType(option)
     setIsOpen(false); // Close the dropdown menu
   }
@@ -34,4 +35,4 @@ function Dropdown({documentType,setDocumentType}) {
   );
 }
 
-export default Dropdown;
+export default DocumentTypeDropdown;

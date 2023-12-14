@@ -299,7 +299,7 @@ function ChatController({
         { selectedId: id },
         {
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
           responseType: "arraybuffer", // Ensure the response type is arraybuffer
@@ -350,7 +350,7 @@ function ChatController({
         `/api/chatbot/getSummary/?selectedId=${selectedId}`,
         {
           headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+            Authorization: `Bearer ${accessToken}`,
             "Content-Type": "application/json",
           },
         }
