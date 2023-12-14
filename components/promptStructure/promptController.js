@@ -153,9 +153,11 @@ function PromptController({ itemId, onClose, type }) {
     
     getAutoFill()
 
-    const status = getExtractStatus
+    // while (getExtractStatus() !== "to_verify" || getExtractStatus() !== "verified"){
+    //   console.log("this is extract status", extractStatus)
+    //   await new Promise(r => setTimeout(r, 1000));
+    // }
 
-    console.log("status jjj", status)
     
     
   }
@@ -196,7 +198,7 @@ function PromptController({ itemId, onClose, type }) {
           },
         }
       );
-      setExtractStatus(response.data.status)
+      setExtractStatus(response.data.auto_fill_status)
 
       if (response.status === 200) {
         return response.data.status

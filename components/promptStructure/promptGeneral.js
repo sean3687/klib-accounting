@@ -45,7 +45,7 @@ function PromptGeneral({ formData, setFormData }) {
       {/* this is navigation */}
       <div className="m-10 ">
         {/* table body */}
-        We don't provide structure data for this type of document yet.
+        We don&apos;t provide structure data for this type of document yet.
       </div>
     </>
   );
