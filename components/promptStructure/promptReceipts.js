@@ -88,16 +88,20 @@ function PromptReceipts({ formData, setFormData }) {
                     type="date"
                     id={field.id}
                     className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                    value={formData[field.id] || ""}
+                    value={
+                      formData[field.id] ? formData[field.id].split(" ")[0] : ""
+                    }
                     onChange={(e) => {
-                      // Convert the date to ISO string and then take the date part
-                      const isoDateString = new Date(e.target.value).toISOString();
-                      const datePart = isoDateString.split('T')[0];
-                
-                      // Set time to '00:00:00.000Z'
-                      const dateTimeWithMidnight = `${datePart}T00:00:00.000Z`;
-                
-                      handleFieldChange(field.id, dateTimeWithMidnight);
+                      // Extract the date part in 'YYYY-MM-DD' format
+                      const datePart = e.target.value;
+
+                      // Define a default time or use a dynamic one
+                      const defaultTime = "17:31:00";
+
+                      // Combine date and time
+                      const dateTime = `${datePart} ${defaultTime}`;
+
+                      handleFieldChange(field.id, dateTime);
                     }}
                   />
                 ) : field.type === "array" ? (

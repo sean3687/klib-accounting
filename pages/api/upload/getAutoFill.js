@@ -7,7 +7,7 @@ export default async function handler(req, res){
     const file_type = req.query.type;
     
     try {
-        const response = await axios.get(`https://chitchatrabbit.me/cpal/auto_fill?file_type=receipt&hashed_file_id=${file_id}`, {
+        const response = await axios.get(`https://chitchatrabbit.me/cpal/change_file_type?file_type=receipt&hashed_file_id=${file_id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",

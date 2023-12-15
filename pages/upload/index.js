@@ -174,15 +174,15 @@ function UploadPage() {
         status = await getFileUploadStatus(inqueue[i].file_id);
       }
 
-      if (status === "to_verify" || status === "Needs Confirm") {
+      if (status === "completed") {
         await fetchUploadedDocuments(accessToken);
         continue; // move to the next file
       }
 
-      if (status === "verified" || status === "Confirmed") {
-        await fetchUploadedDocuments(accessToken);
-        continue; // move to the next file
-      }
+      // if (status === "verified" || status === "Confirmed") {
+      //   await fetchUploadedDocuments(accessToken);
+      //   continue; // move to the next file
+      // }
     }
   }
 

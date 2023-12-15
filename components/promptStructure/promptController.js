@@ -9,6 +9,8 @@ import DocumentTypeDropdown from "./documentTypeDropdown";
 import PromptOptionDropdown from "./promptOptionDropdown";
 import PromptGeneral from "./promptGeneral";
 import PromptMessageController from "./promptMessageManager";
+import toast, { Toaster } from "react-hot-toast";
+import firstLetterLowercase from "../../utils/firstLetterLowercase";
 
 function PromptController({ itemId, onClose, type }) {
   const [accessToken] = useSessionStorage("accessToken", "");
@@ -51,13 +53,20 @@ function PromptController({ itemId, onClose, type }) {
   ];
 
   useEffect(() => {
-    fetchStructureData();
+    if (type !== "General" || type !== "") {
+      console.log("why is it running 1 : ", type);
+    } else {
+      fetchStructureData();
+    }
     getDownloadDocument(itemId);
-    console.log("this is extracted status", extractStatus)
   }, []);
 
   useEffect(() => {
-    fetchStructureData();
+    if (type !== "General" || type !== "") {
+      console.log("why is it running 1 : ", type);
+    } else {
+      fetchStructureData();
+    }
   }, [documentType]);
 
   async function fetchStructureData() {
@@ -77,7 +86,7 @@ function PromptController({ itemId, onClose, type }) {
         setFormData(response.data.data);
       }
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      toast.error("Please try again later");
     }
   }
 
@@ -131,7 +140,7 @@ function PromptController({ itemId, onClose, type }) {
     try {
       console.log("this is form data", formData);
       const response = await axios.post(
-        `/api/upload/postVerifyReceipt`,
+        `/api/upload/postVerifyJSON`,
         { data: formData },
         {
           headers: {
@@ -149,24 +158,29 @@ function PromptController({ itemId, onClose, type }) {
     }
   }
 
-  async function extractStructureData(){
-    
-    getAutoFill()
-
-    // while (getExtractStatus() !== "to_verify" || getExtractStatus() !== "verified"){
-    //   console.log("this is extract status", extractStatus)
-    //   await new Promise(r => setTimeout(r, 1000));
-    // }
-
-    
-    
+  async function extractStructureData() {
+    if (type === documentType) {
+      toast.error("Already extracted");
+  } else {
+      getAutoFill();
+      setExtractStatus("extracting")
+      let status;
+      do {
+          status = await getExtractStatus();
+          console.log("this is status", status);
+          if (status !== "to_verify" && status !== "error") {
+              await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+      } while (status !== "to_verify" && status !== "error");
+      setExtractStatus("syncReady")
+  }
   }
 
-  async function getAutoFill(){
-    let item_id = itemId
-    let file_type = documentType
+  async function getAutoFill() {
+    let item_id = itemId;
+    let file_type = firstLetterLowercase(documentType);
 
-    console.log("item_id and file_type", item_id," ", file_type)
+    console.log("item_id and file_type", item_id, " ", file_type);
     try {
       const response = await axios.get(
         `/api/upload/getAutoFill?file_type=${file_type}&file_id=${itemId}`,
@@ -187,7 +201,7 @@ function PromptController({ itemId, onClose, type }) {
   }
 
   async function getExtractStatus() {
-    let item_id = itemId
+    let item_id = itemId;
     try {
       const response = await axios.get(
         `https://chitchatrabbit.me/cpal/auto_fill_status?hashed_file_id=${item_id}`,
@@ -198,19 +212,35 @@ function PromptController({ itemId, onClose, type }) {
           },
         }
       );
-      setExtractStatus(response.data.auto_fill_status)
 
-      if (response.status === 200) {
-        return response.data.status
-      }
+     
+
+      // if (response.data.auto_fill_status === "to_verify") {
+      //   // If the status is "to_verify", stop polling
+      //   console.log("Status is to_verify. Stopping polling.");
+      //   setExtractStatus("syncReady");
+        
+      // }
+      return response.data.auto_fill_status;
     } catch (error) {
       console.error("Error fetching user data:", error);
+      return "error";
     }
-  }
+    // while (true) {
 
+    //   const status = await checkStatus();
+    //   console.log("this is " ,status)
+    //   if (status === "to_verify" || status === "error") {
+    //     break;
+    //   } else {
+    //     await new Promise((resolve) => setTimeout(resolve, 1000));
+    //   }
+    // }
+  }
 
   return (
     <div className="bg-white w-full">
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="text-md w-full flex p-2 border-b items-center justify-center">
         <div className="text-xl font-bold h-full">
           <DocumentTypeDropdown
@@ -221,7 +251,10 @@ function PromptController({ itemId, onClose, type }) {
         </div>
         <div className="flex ml-auto items-center">
           <PromptMessageController message={extractStatus} />
-          <PromptOptionDropdown fetchStructureData={fetchStructureData} extractStructureData={extractStructureData}/>
+          <PromptOptionDropdown
+            fetchStructureData={fetchStructureData}
+            extractStructureData={extractStructureData}
+          />
         </div>
       </div>
 

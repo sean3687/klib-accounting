@@ -6,7 +6,7 @@ export default async function handler(req, res){
     console.log("this is form data 22",formdata)
     
     try {
-        const response = await axios.post(`https://chitchatrabbit.me/cpal/verify_receipt`, formdata,{
+        const response = await axios.post(`https://chitchatrabbit.me/cpal/verify_json_data`, formdata,{
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
@@ -19,7 +19,7 @@ export default async function handler(req, res){
     } catch (error) {
         
         res.status(500).json({
-            detail: "error"
+            detail: error.message
         });
     }
 }
