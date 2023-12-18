@@ -610,6 +610,7 @@ function UploadPage() {
                                 itemId={item.id}
                                 onClose={closeStructureModal}
                                 type={capitalizeFirstChar(item.type)}
+                                fetchDocumentList={() => fetchUploadedDocuments(accessToken)}
                               />
                             </Modal>
                           </button>

@@ -1,47 +1,38 @@
-import React, { useEffect } from "react";
+import React, {useEffect} from "react";
 
-function PromptReceipts({ formData, setFormData }) {
-  const initialFormData = {
-    date_time: "",
-    vendor_name: "",
-    vendor_address: "",
-    vendor_contact: "",
-    contract: "",
-    items: "",
-    subtotals: "",
-    total: "",
-    price: "",
-    taxes: "",
-    payment_type: "",
-    payment_details: "",
-    transaction_id: "",
-    cashier_name: "",
-    discounts: "",
-    tips: "",
-    notes: "",
-  };
+function PromptCheck({ formData, setFormData, fetchDocumentList }) {
   const fields = [
-    { id: "vendor_name", label: "Business Name", type: "text" },
-    { id: "vendor_address", label: "Address", type: "text" },
-    { id: "date_time", label: "Date/Time", type: "date" },
-    { id: "vendor_contact", label: "Contact", type: "text" },
-    { id: "items", label: "Items", type: "array" },
-    { id: "subtotals", label: "SubTotal", type: "price" },
-    { id: "taxes", label: "Tax", type: "number" },
-    { id: "tips", label: "Tips", type: "text" },
-    { id: "total", label: "Total", type: "price" },
-    { id: "payment_type", label: "Payment Type", type: "text" },
-    { id: "payment_details", label: "Payment Detail", type: "text" },
-    { id: "transaction_id", label: "Transaction Number", type: "text" },
-    { id: "cashier_name", label: "Cashier/Server Name", type: "text" },
-    { id: "itemsPurchased", label: "Items Purchased", type: "text" },
-    { id: "notes", label: "Notes", type: "textarea" },
+    { id: "bank_name", label: "Bank Name", type: "text" },
+    { id: "bank_address", label: "Bank Address", type: "text" },
+    { id: "bank_fractional", label: "Bank Fractional", type: "text" },
+    { id: "bank_routing_number", label: "Routing Number", type: "text" },
+    { id: "date", label: "Date/Time", type: "date" },
+    { id: "amount", label: "Amount", type: "price" },
+    { id: "payer_name", label: "Payer Name", type: "text" },
+    { id: "payer_address", label: "Payer Address", type: "text" },
+    { id: "check_number", label: "Check Number", type: "text" },
+    { id: "checking_account_number", label: "Check Account Number", type: "text" },
+    { id: "memo", label: "Notes", type: "textarea" },
   ];
+
+  const initialFormData = {
+    bank_name: "",
+    bank_address: "",
+    bank_fractional: "",
+    bank_routing_number: "",
+    date: "",
+    amount: "",
+    payer_name: "",
+    payer_address: "",
+    check_number: "",
+    checking_account_number: "",
+    memo: "",
+  };
 
   useEffect(() => {
     setFormData(initialFormData);
+    fetchDocumentList
   }, []);
-
 
   const handleFieldChange = (fieldId, value) => {
     const updatedFormData = { ...formData, [fieldId]: value };
@@ -71,7 +62,7 @@ function PromptReceipts({ formData, setFormData }) {
         {/* table body */}
         <div className="flex">
           <form className="grid grid-cols-2 gap-4">
-            {formData&&fields.map((field) => (
+            {fields.map((field) => (
               <div
                 key={field.id}
                 className={`flex flex-col ${
@@ -158,4 +149,4 @@ function PromptReceipts({ formData, setFormData }) {
   );
 }
 
-export default PromptReceipts;
+export default PromptCheck;

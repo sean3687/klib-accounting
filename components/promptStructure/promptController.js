@@ -1,8 +1,9 @@
 import React, { use, useEffect, useState } from "react";
 import PromptReceipts from "./promptReceipts";
 import PromptBankStatements from "./promptBankStatements";
+import PromptCheck from "./promptCheck";
 import axios from "axios";
-import { PiWarningCircle } from "react-icons/pi";
+import { PiWarningCircle, PiCheck } from "react-icons/pi";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import ThumbnailManager from "./thumbnailmanager";
 import DocumentTypeDropdown from "./documentTypeDropdown";
@@ -12,33 +13,13 @@ import PromptMessageController from "./promptMessageManager";
 import toast, { Toaster } from "react-hot-toast";
 import firstLetterLowercase from "../../utils/firstLetterLowercase";
 
-function PromptController({ itemId, onClose, type }) {
+function PromptController({ itemId, onClose, type, fetchDocumentList }) {
   const [accessToken] = useSessionStorage("accessToken", "");
   const [documentType, setDocumentType] = useState(type);
   const [extractStatus, setExtractStatus] = useState("");
-  const initialFormData = {
-    date_time: "",
-    vendor_name: "",
-    vendor_address: "",
-    vendor_contact: "",
-    contract: "",
-    items: [],
-    subtotals: "",
-    total: "",
-    price: "",
-    taxes: "",
-    payment_type: "",
-    payment_details: "",
-    transaction_id: "",
-    cashier_name: "",
-    discounts: "",
-    tips: "",
-    notes: "",
-  };
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState();
   const [preview, setPreview] = useState("");
   const [fileType, setFileType] = useState("");
-  const [selectedTabIndex, setSelectedTabIndex] = useState(0);
 
   const tabs = [
     {
@@ -84,6 +65,7 @@ function PromptController({ itemId, onClose, type }) {
       if (response.status === 200) {
         console.log("Fetched StructureData", response.data.data);
         setFormData(response.data.data);
+        setExtractStatus("syncCompleted");
       }
     } catch (error) {
       toast.error("Please try again later");
@@ -94,7 +76,11 @@ function PromptController({ itemId, onClose, type }) {
     console.log("This is form data333", formData);
     try {
       postToStructureData().then(() => {
+        fetchDocumentList();
         onClose(e);
+        setExtractStatus("");
+        setFormData("");
+        toast.success("Successfully saved");
       });
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -161,19 +147,29 @@ function PromptController({ itemId, onClose, type }) {
   async function extractStructureData() {
     if (type === documentType) {
       toast.error("Already extracted");
-  } else {
+    } else {
       getAutoFill();
-      setExtractStatus("extracting")
+      
       let status;
       do {
-          status = await getExtractStatus();
-          console.log("this is status", status);
-          if (status !== "to_verify" && status !== "error") {
-              await new Promise(resolve => setTimeout(resolve, 1000));
-          }
-      } while (status !== "to_verify" && status !== "error");
-      setExtractStatus("syncReady")
-  }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        status = await getExtractStatus();
+        console.log("this is status", status);
+        setExtractStatus("extracting");
+        if (status === "to_verify") {
+          setExtractStatus("syncReady");
+          break;
+        } else if (status === "error" || status === "failed") {
+          // Handle error or failed status
+          console.error("Error or failed status encountered");
+          setExtractStatus("failed");
+          break;
+        } else {
+          // Continue polling in other cases
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+        }
+      } while (extractStatus === "extracting");
+    }
   }
 
   async function getAutoFill() {
@@ -213,18 +209,16 @@ function PromptController({ itemId, onClose, type }) {
         }
       );
 
-     
-
       // if (response.data.auto_fill_status === "to_verify") {
       //   // If the status is "to_verify", stop polling
       //   console.log("Status is to_verify. Stopping polling.");
       //   setExtractStatus("syncReady");
-        
+
       // }
       return response.data.auto_fill_status;
     } catch (error) {
       console.error("Error fetching user data:", error);
-      return "error";
+      return "failed";
     }
     // while (true) {
 
@@ -236,6 +230,12 @@ function PromptController({ itemId, onClose, type }) {
     //     await new Promise((resolve) => setTimeout(resolve, 1000));
     //   }
     // }
+  }
+
+  function closePromptModal(e) {
+    setExtractStatus("");
+    fetchDocumentList();
+    onClose(e);
   }
 
   return (
@@ -250,7 +250,11 @@ function PromptController({ itemId, onClose, type }) {
           />
         </div>
         <div className="flex ml-auto items-center">
-          <PromptMessageController message={extractStatus} />
+          <PromptMessageController
+            message={extractStatus}
+            extractStructureData={extractStructureData}
+            sync={fetchStructureData}
+          />
           <PromptOptionDropdown
             fetchStructureData={fetchStructureData}
             extractStructureData={extractStructureData}
@@ -266,9 +270,19 @@ function PromptController({ itemId, onClose, type }) {
               <PromptGeneral formData={formData} setFormData={setFormData} />
             )}
             {documentType === "Receipt" && (
-              <PromptReceipts formData={formData} setFormData={setFormData} />
+              <PromptReceipts
+                formData={formData}
+                setFormData={setFormData}
+                fetchStructureData={fetchStructureData}
+              />
             )}
-            {documentType === "BankStatements" && <PromptBankStatements />}
+            {documentType === "Check" && (
+              <PromptCheck
+                formData={formData}
+                setFormData={setFormData}
+                fetchStructureData={fetchStructureData}
+              />
+            )}
           </div>
         </div>
         {/* Preview */}
@@ -282,7 +296,7 @@ function PromptController({ itemId, onClose, type }) {
       <div className="text-md w-full flex p-2 border-t align-items">
         <button
           className="mr-0 ml-auto border px-4 rounded-md text-sm font-bold"
-          onClick={onClose}
+          onClick={closePromptModal}
         >
           Cancel
         </button>
