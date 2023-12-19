@@ -458,12 +458,12 @@ function UploadPage() {
                 onClick={openWebcamModal}
               >
                 <div className="flex items-center space-x-3">
-                  <FaCamera className="w-4 h-4 text-red-800" />
-                  <div className="text-red-700 text-base font-semibold">
+                  <FaCamera className="w-4 h-4 text-blue-500" />
+                  <div className="text-blue-700 text-base font-semibold">
                     + Scan document
                   </div>
                 </div>
-                <div>Get your files securely from Google drive</div>
+                <div>Scan your document and directly upload it to the database</div>
               </button>
               <Modal
                 className="modal "
