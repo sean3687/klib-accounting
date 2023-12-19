@@ -12,6 +12,7 @@ import PromptGeneral from "./promptGeneral";
 import PromptMessageController from "./promptMessageManager";
 import toast, { Toaster } from "react-hot-toast";
 import firstLetterLowercase from "../../utils/firstLetterLowercase";
+import LoadingDots from "../animation/loadingDots";
 
 function PromptController({ itemId, onClose, type, fetchDocumentList }) {
   const [accessToken] = useSessionStorage("accessToken", "");
@@ -145,64 +146,66 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
   }
 
   async function extractStructureData() {
-    if (type === documentType ) {
+    if (type === documentType) {
       toast.error("Already extracted");
     } else {
       await getAutoFill();
       let extractStatus = await getExtractStatus();
-      do{
+      do {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         extractStatus = await getExtractStatus();
-        if(extractStatus === "verified"){
+        if (extractStatus === "verified") {
           setExtractStatus("verified");
           break;
-        } 
-        if(extractStatus === "error" || extractStatus === "failed" || extractStatus ===""){
+        }
+        if (
+          extractStatus === "error" ||
+          extractStatus === "failed" ||
+          extractStatus === ""
+        ) {
           setExtractStatus("failed");
           break;
         }
-        if(extractStatus === "to_verify"){
+        if (extractStatus === "to_verify") {
           setExtractStatus("syncReady");
           break;
         } else {
           setExtractStatus("extracting");
         }
-        console.log("this is extract status", extractStatus)
-      }
-      while (extractStatus !== "extracting" || extractStatus !== "");
-      
-        // console.log("this is response", response);
-        // // Check if rresponse is undefined
-        // if (!response) {
-        //   console.error("No response from getAutoFill");
-        //   return;
-        // } else if (response.status === 500) {
-        //   console.error("Error in getAutoFill");
-        //   toast.error("Cannot extract data");
-        // } else {
-        //   do {
-        //     let status;
-        //     await new Promise((resolve) => setTimeout(resolve, 1000));
-        //     status = await getExtractStatus();
-        //     console.log("this is status", status);
-           
-        //     if (status === "to_verify") {
-        //       setExtractStatus("syncReady");
-        //       break;
-        //     } else if (status === "error" || status === "failed" || status ==="") {
-        //       console.error("Error or failed status encountered");
-        //       setExtractStatus("failed");
-        //       break;
-        //     } else if (status === "verified"){
-        //       setExtractStatus("verified");
-        //       break;
-        //     }
-        //     else {
-        //       setExtractStatus("extracting");
-        //     }
-        //   } while (extractStatus !== "extracting");
-        // }
-     
+        console.log("this is extract status", extractStatus);
+      } while (extractStatus !== "extracting" || extractStatus !== "");
+
+      // console.log("this is response", response);
+      // // Check if rresponse is undefined
+      // if (!response) {
+      //   console.error("No response from getAutoFill");
+      //   return;
+      // } else if (response.status === 500) {
+      //   console.error("Error in getAutoFill");
+      //   toast.error("Cannot extract data");
+      // } else {
+      //   do {
+      //     let status;
+      //     await new Promise((resolve) => setTimeout(resolve, 1000));
+      //     status = await getExtractStatus();
+      //     console.log("this is status", status);
+
+      //     if (status === "to_verify") {
+      //       setExtractStatus("syncReady");
+      //       break;
+      //     } else if (status === "error" || status === "failed" || status ==="") {
+      //       console.error("Error or failed status encountered");
+      //       setExtractStatus("failed");
+      //       break;
+      //     } else if (status === "verified"){
+      //       setExtractStatus("verified");
+      //       break;
+      //     }
+      //     else {
+      //       setExtractStatus("extracting");
+      //     }
+      //   } while (extractStatus !== "extracting");
+      // }
     }
   }
 
@@ -221,8 +224,6 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
         }
       );
       console.log("this is response", response);
-      
-
     } catch (error) {
       console.error("Error fetching user data:", error);
       toast.error("Cannot extract data");
@@ -231,7 +232,7 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
 
   async function getExtractStatus() {
     let item_id = itemId;
-    console.log("this is item id", item_id)
+    console.log("this is item id", item_id);
     try {
       const response = await axios.get(
         `api/upload/getExtractStatus?item_id=${item_id}`,
@@ -242,7 +243,7 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
           },
         }
       );
-      console.log("getExtractStatus response", response.data.status)
+      console.log("getExtractStatus response", response.data.status);
       return response.data.status;
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -304,14 +305,20 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
           </div>
         </div>
         {/* Preview */}
-        <div className="bg-slate-50 py-5 px-5  max-w-[40vh] min-h-[60vh]">
+        <div className="bg-slate-50 py-5 px-5  max-w-[40vh] min-w-[50vh] min-h-[60vh]">
           <div className="text-sm font-semibold mb-2 text-gray-600 ">
             Document preview
           </div>
-          {
-            
-          }
-          <ThumbnailManager preview={preview} type={fileType} />
+          {preview ? (
+            <>
+              <ThumbnailManager preview={preview} type={fileType} />
+              
+            </>
+          ) : (
+            <div className="flex justify-center items-center w-full h-full">
+              <LoadingDots />
+            </div>
+          )}
         </div>
       </div>
       <div className="text-md w-full flex p-2 border-t align-items">

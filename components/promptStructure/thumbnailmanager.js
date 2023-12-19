@@ -7,7 +7,7 @@ export default function ThumbnailManager({ preview, type }) {
       type === "image/png" ||
       type === "image/bmp" ||
       type === "image/webp" ? (
-        <img className="min-w-[30vh]"src={preview}></img>
+        <img className="min-w-[30vh] rounded-lg"src={preview}></img>
       ) : (
         <iframe
           className="w-full min-h-[60vh]"
