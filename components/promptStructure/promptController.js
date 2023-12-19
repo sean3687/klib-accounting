@@ -36,6 +36,7 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
   useEffect(() => {
     if (type !== "General" || type !== "") {
     } else {
+      setFormData("");
       fetchStructureData();
     }
     getDownloadDocument(itemId);
@@ -44,6 +45,7 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
   useEffect(() => {
     if (type !== "General" || type !== "") {
     } else {
+      setFormData("");
       fetchStructureData();
     }
   }, [documentType]);

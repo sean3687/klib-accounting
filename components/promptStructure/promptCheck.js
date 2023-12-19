@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, { useEffect } from "react";
 
 function PromptCheck({ formData, setFormData, fetchDocumentList }) {
   const fields = [
@@ -11,7 +11,11 @@ function PromptCheck({ formData, setFormData, fetchDocumentList }) {
     { id: "payer_name", label: "Payer Name", type: "text" },
     { id: "payer_address", label: "Payer Address", type: "text" },
     { id: "check_number", label: "Check Number", type: "text" },
-    { id: "checking_account_number", label: "Check Account Number", type: "text" },
+    {
+      id: "checking_account_number",
+      label: "Check Account Number",
+      type: "text",
+    },
     { id: "memo", label: "Notes", type: "textarea" },
   ];
 
@@ -30,11 +34,11 @@ function PromptCheck({ formData, setFormData, fetchDocumentList }) {
   };
 
   useEffect(() => {
-    console.log("here is form data", formData)
-    setFormData({})
+    console.log("here is form data", formData);
+    setFormData({});
     setFormData(initialFormData);
-    
-    fetchDocumentList
+
+    fetchDocumentList;
   }, []);
 
   const handleFieldChange = (fieldId, value) => {
@@ -65,7 +69,7 @@ function PromptCheck({ formData, setFormData, fetchDocumentList }) {
         {/* table body */}
         <div className="flex">
           <form className="grid grid-cols-2 gap-4">
-            {fields.map((field) => (
+            {formData && fields.map((field) => (
               <div
                 key={field.id}
                 className={`flex flex-col ${
@@ -92,12 +96,15 @@ function PromptCheck({ formData, setFormData, fetchDocumentList }) {
                     type="text"
                     id={field.id}
                     className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
-                    value={formData[field.id] ? `$${formData[field.id]}` : ""}
+                    value={
+                      formData[field.id]
+                        ? `$${formData[field.id].toFixed(2)}`
+                        : ""
+                    }
                     onChange={(e) => {
-                      const numericValue = e.target.value.replace(
-                        /[^\d.]/g,
-                        ""
-                      );
+                      const input = e.target.value.replace(/[^0-9.]/g, "");
+                      const numericValue =
+                        input === "" ? "" : parseFloat(input);
                       handleFieldChange(field.id, numericValue);
                     }}
                   />

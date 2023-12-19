@@ -1,25 +1,7 @@
 import React, { useEffect } from "react";
 
 function PromptReceipts({ formData, setFormData }) {
-  const initialFormData = {
-    date_time: "",
-    vendor_name: "",
-    vendor_address: "",
-    vendor_contact: "",
-    contract: "",
-    items: "",
-    subtotals: "",
-    total: "",
-    price: "",
-    taxes: "",
-    payment_type: "",
-    payment_details: "",
-    transaction_id: "",
-    cashier_name: "",
-    discounts: "",
-    tips: "",
-    notes: "",
-  };
+  
   const fields = [
     { id: "vendor_name", label: "Business Name", type: "text" },
     { id: "vendor_address", label: "Address", type: "text" },
@@ -39,6 +21,25 @@ function PromptReceipts({ formData, setFormData }) {
     { id: "notes", label: "Notes", type: "textarea" },
   ];
 
+  const initialFormData = {
+    date_time: "",
+    vendor_name: "",
+    vendor_address: "",
+    vendor_contact: "",
+    contract: "",
+    items: "",
+    subtotals: "",
+    total: "",
+    price: "",
+    taxes: "",
+    payment_type: "",
+    payment_details: "",
+    transaction_id: "",
+    cashier_name: "",
+    discounts: "",
+    tips: "",
+    notes: "",
+  };
   useEffect(() => {
     setFormData(initialFormData);
   }, []);
