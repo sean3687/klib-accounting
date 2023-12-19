@@ -3,7 +3,7 @@ import Modal from "react-modal";
 import axios from "axios";
 import { useRouter } from "next/router";
 import { AiOutlineDelete, AiOutlineClose } from "react-icons/ai";
-import { FaFileLines, FaGoogleDrive } from "react-icons/fa6";
+import { FaFileLines, FaGoogleDrive, FaCamera } from "react-icons/fa6";
 import {
   PiTrashDuotone,
   PiDownloadSimpleDuotone,
@@ -13,8 +13,6 @@ import {
   PiTreeStructureDuotone,
   PiReceiptDuotone,
 } from "react-icons/pi";
-
-import { CiMenuKebab } from "react-icons/ci";
 import { FaSearch } from "react-icons/fa";
 import Spinner from "../../components/animation/spinner";
 import useChatInfoStore from "../../stores/chatStore";
@@ -24,16 +22,19 @@ import { toast, Toaster } from "react-hot-toast";
 import { useSessionStorage } from "../../hooks/useSessionStorage";
 import PromptController from "../../components/promptStructure/promptController";
 import capitalizeFirstChar from "../../utils/capitalizeFirstString";
+import WebcamUploadComponent from "../../components/upload/webcamUploadModal";
 
 function UploadPage() {
   const [filesUpload, setFilesUpload] = useState([]);
+  const fileInput = useRef(null);
+  const [imgSrc, setImgSrc] = useState(null);
+  const webcamRef = useRef(null);
   const [documentList, setDocumentList] = useState([]);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [selectedID, setSelectedID] = useState(null);
   // const [structureDataId, setStructureDataId] = useState(null);
   const [selectedDataId, setSelectedDataId] = useState(null);
   const [deleteStatus, setDeleteStatus] = useState("");
-  const fileInput = useRef(null);
   const [hoveredID, setHoveredID] = useState(null);
   const setSummarizeId = useChatInfoStore((state) => state.setSummarizeId);
   const [expandedSummarizeRow, setExpandedSummarizeRow] = useState(null);
@@ -45,6 +46,7 @@ function UploadPage() {
   const [accessToken] = useSessionStorage("accessToken", "");
   const router = useRouter();
   const [isStructureModalOpen, setIsStructureModalOpen] = useState(false);
+  const [isWebcamModalOpen, setIsWebcamModalOpen] = useState(false);
 
   const openStructureModal = (id) => {
     setIsStructureModalOpen(true);
@@ -54,6 +56,14 @@ function UploadPage() {
     e.stopPropagation();
     setIsStructureModalOpen(false);
   };
+  const openWebcamModal = () => {
+    setIsWebcamModalOpen(true);
+  };
+  const closeWebcamModal = (e) => {
+    
+    setIsWebcamModalOpen(false);
+  };
+
 
   useEffect(() => {
     if (!accessToken) {
@@ -132,8 +142,6 @@ function UploadPage() {
     fileInput.current.click();
   }
 
- 
-
   function handleFileChange(event) {
     setFilesUpload([...event.target.files]);
     console.log("this is files" + filesUpload.name);
@@ -187,13 +195,15 @@ function UploadPage() {
   }
 
   async function getAutoFill(file_id, file_type) {
-    const response = await axios.get(`/api/upload/getAutoFill?file_id=${file_id}&file_type=${file_type}`, 
-    {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axios.get(
+      `/api/upload/getAutoFill?file_id=${file_id}&file_type=${file_type}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
   }
 
   async function handleFilesUpload(files) {
@@ -347,7 +357,6 @@ function UploadPage() {
   }
 
   function UploadstatusIndication({ fileStatus }) {
-    
     return (
       <div>
         {fileStatus === "uploading" ? (
@@ -386,8 +395,7 @@ function UploadPage() {
               Completed
             </div>
           </button>
-        ) :
-        (
+        ) : (
           <button className="relative transform transition-transform hover:scale-105 active:scale-95 px-2">
             <div className="relative group text-xs bg-red-500 px-2 py-1 rounded-lg text-white">
               Error
@@ -422,7 +430,7 @@ function UploadPage() {
 
         <div className="flex flex-wrap items-center justify-between">
           <div className="relative mb-2 md:mb-0 flex">
-            <div className="grid grid-cols-2 gap-6 p-6">
+            <div className="grid grid-cols-3 gap-6 p-6">
               <button
                 className="p-4 ring-1 ring-gray-200 rounded-2xl text-left space-y-3 hover:ring-gray-300 active:ring-gray-400 min-w-fit"
                 onClick={handleFileChoose}
@@ -445,6 +453,26 @@ function UploadPage() {
                   multiple
                 ></input>
               </button>
+              <button
+                className="p-4 ring-1 ring-gray-200 rounded-2xl text-left space-y-3 hover:ring-gray-300 active:ring-gray-400"
+                onClick={openWebcamModal}
+              >
+                <div className="flex items-center space-x-3">
+                  <FaCamera className="w-4 h-4 text-red-800" />
+                  <div className="text-red-700 text-base font-semibold">
+                    + Scan document
+                  </div>
+                </div>
+                <div>Get your files securely from Google drive</div>
+              </button>
+              <Modal
+                className="modal "
+                overlayClassName="modal-overlay"
+                isOpen={isWebcamModalOpen}
+                uploadImage={handleFileChange}
+              >
+                <WebcamUploadComponent onClose={closeWebcamModal} handleFileChange={handleFileChange}/>
+              </Modal>
               <button className="p-4 ring-1 ring-gray-200 rounded-2xl text-left space-y-3 hover:ring-gray-300 active:ring-gray-400 opacity-50">
                 <div className="flex items-center space-x-3">
                   <FaGoogleDrive className="w-4 h-4 text-red-800" />
@@ -452,6 +480,13 @@ function UploadPage() {
                     + Google drive
                   </div>
                 </div>
+                <input
+                  type="file"
+                  ref={fileInput}
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                  multiple
+                ></input>
                 <div>Get your files securely from Google drive</div>
               </button>
             </div>
@@ -610,7 +645,9 @@ function UploadPage() {
                                 itemId={item.id}
                                 onClose={closeStructureModal}
                                 type={capitalizeFirstChar(item.type)}
-                                fetchDocumentList={() => fetchUploadedDocuments(accessToken)}
+                                fetchDocumentList={() =>
+                                  fetchUploadedDocuments(accessToken)
+                                }
                               />
                             </Modal>
                           </button>

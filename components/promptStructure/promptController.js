@@ -308,6 +308,9 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
           <div className="text-sm font-semibold mb-2 text-gray-600 ">
             Document preview
           </div>
+          {
+            
+          }
           <ThumbnailManager preview={preview} type={fileType} />
         </div>
       </div>
