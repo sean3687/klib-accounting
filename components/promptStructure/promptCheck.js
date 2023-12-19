@@ -30,7 +30,10 @@ function PromptCheck({ formData, setFormData, fetchDocumentList }) {
   };
 
   useEffect(() => {
+    console.log("here is form data", formData)
+    setFormData({})
     setFormData(initialFormData);
+    
     fetchDocumentList
   }, []);
 

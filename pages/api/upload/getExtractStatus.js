@@ -16,6 +16,7 @@ export default async function handler(req, res) {
     });
     
     const extractStatus = response.data.auto_fill_status; 
+    console.log("here is response",extractStatus)
 
     res.status(200).json({ status: extractStatus });
   } catch (error) {

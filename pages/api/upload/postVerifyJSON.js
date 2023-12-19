@@ -17,7 +17,9 @@ export default async function handler(req, res){
             detail : "successfully updated"
         });
     } catch (error) {
-        
+        res.status(400).json({
+            detail: ""
+        })
         res.status(500).json({
             detail: error.message
         });

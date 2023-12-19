@@ -35,7 +35,6 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
 
   useEffect(() => {
     if (type !== "General" || type !== "") {
-      console.log("why is it running 1 : ", type);
     } else {
       fetchStructureData();
     }
@@ -44,7 +43,6 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
 
   useEffect(() => {
     if (type !== "General" || type !== "") {
-      console.log("why is it running 1 : ", type);
     } else {
       fetchStructureData();
     }
@@ -145,30 +143,64 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
   }
 
   async function extractStructureData() {
-    if (type === documentType) {
+    if (type === documentType ) {
       toast.error("Already extracted");
     } else {
-      getAutoFill();
-      
-      let status;
-      do {
+      await getAutoFill();
+      let extractStatus = await getExtractStatus();
+      do{
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        status = await getExtractStatus();
-        console.log("this is status", status);
-        setExtractStatus("extracting");
-        if (status === "to_verify") {
-          setExtractStatus("syncReady");
+        extractStatus = await getExtractStatus();
+        if(extractStatus === "verified"){
+          setExtractStatus("verified");
           break;
-        } else if (status === "error" || status === "failed") {
-          // Handle error or failed status
-          console.error("Error or failed status encountered");
+        } 
+        if(extractStatus === "error" || extractStatus === "failed" || extractStatus ===""){
           setExtractStatus("failed");
           break;
-        } else {
-          // Continue polling in other cases
-          await new Promise((resolve) => setTimeout(resolve, 1000));
         }
-      } while (extractStatus === "extracting");
+        if(extractStatus === "to_verify"){
+          setExtractStatus("syncReady");
+          break;
+        } else {
+          setExtractStatus("extracting");
+        }
+        console.log("this is extract status", extractStatus)
+      }
+      while (extractStatus !== "extracting" || extractStatus !== "");
+      
+        // console.log("this is response", response);
+        // // Check if rresponse is undefined
+        // if (!response) {
+        //   console.error("No response from getAutoFill");
+        //   return;
+        // } else if (response.status === 500) {
+        //   console.error("Error in getAutoFill");
+        //   toast.error("Cannot extract data");
+        // } else {
+        //   do {
+        //     let status;
+        //     await new Promise((resolve) => setTimeout(resolve, 1000));
+        //     status = await getExtractStatus();
+        //     console.log("this is status", status);
+           
+        //     if (status === "to_verify") {
+        //       setExtractStatus("syncReady");
+        //       break;
+        //     } else if (status === "error" || status === "failed" || status ==="") {
+        //       console.error("Error or failed status encountered");
+        //       setExtractStatus("failed");
+        //       break;
+        //     } else if (status === "verified"){
+        //       setExtractStatus("verified");
+        //       break;
+        //     }
+        //     else {
+        //       setExtractStatus("extracting");
+        //     }
+        //   } while (extractStatus !== "extracting");
+        // }
+     
     }
   }
 
@@ -176,10 +208,9 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
     let item_id = itemId;
     let file_type = firstLetterLowercase(documentType);
 
-    console.log("item_id and file_type", item_id, " ", file_type);
     try {
       const response = await axios.get(
-        `/api/upload/getAutoFill?file_type=${file_type}&file_id=${itemId}`,
+        `/api/upload/getAutoFill?file_type=${file_type}&file_id=${item_id}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -187,20 +218,21 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
           },
         }
       );
+      console.log("this is response", response);
+      
 
-      if (response.status === 200) {
-        console.log("Posted to StructureData");
-      }
     } catch (error) {
       console.error("Error fetching user data:", error);
+      toast.error("Cannot extract data");
     }
   }
 
   async function getExtractStatus() {
     let item_id = itemId;
+    console.log("this is item id", item_id)
     try {
       const response = await axios.get(
-        `https://chitchatrabbit.me/cpal/auto_fill_status?hashed_file_id=${item_id}`,
+        `api/upload/getExtractStatus?item_id=${item_id}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -208,28 +240,12 @@ function PromptController({ itemId, onClose, type, fetchDocumentList }) {
           },
         }
       );
-
-      // if (response.data.auto_fill_status === "to_verify") {
-      //   // If the status is "to_verify", stop polling
-      //   console.log("Status is to_verify. Stopping polling.");
-      //   setExtractStatus("syncReady");
-
-      // }
-      return response.data.auto_fill_status;
+      console.log("getExtractStatus response", response.data.status)
+      return response.data.status;
     } catch (error) {
       console.error("Error fetching user data:", error);
       return "failed";
     }
-    // while (true) {
-
-    //   const status = await checkStatus();
-    //   console.log("this is " ,status)
-    //   if (status === "to_verify" || status === "error") {
-    //     break;
-    //   } else {
-    //     await new Promise((resolve) => setTimeout(resolve, 1000));
-    //   }
-    // }
   }
 
   function closePromptModal(e) {

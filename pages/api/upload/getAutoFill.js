@@ -1,13 +1,12 @@
 import axios from "axios";
 
-
 export default async function handler(req, res){
     const token = req.headers.authorization.split(" ")[1];
     const file_id = req.query.file_id;
-    const file_type = req.query.type;
+    const file_type = req.query.file_type;
     
     try {
-        const response = await axios.get(`https://chitchatrabbit.me/cpal/change_file_type?file_type=receipt&hashed_file_id=${file_id}`, {
+        const response = await axios.get(`https://chitchatrabbit.me/cpal/change_file_type?file_type=${file_type}&hashed_file_id=${file_id}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
