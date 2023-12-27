@@ -138,7 +138,7 @@ function ResponsiveNavbar() {
   function Navigation() {
     const [isDropdownVisible, setDropdownVisible] = useState(false);
     return (
-      <div className="flex flex-col h-full relative bg-slate-100 shadow-md">
+      <div className="flex flex-col h-full relative bg-slate-100 shadow-md border">
         {isDropdownVisible && (
           <div className="absolute mb-1 bottom-12 rounded-lg m-2 left-0 right-0 mx-auto z-20 pb-1 mt-2 origin-top-right bg-white focus:outline-none border border-gray-200 translate-y-1 animate-expandFromBottom max-w-[95%]">
             <TabItems

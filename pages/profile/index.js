@@ -4,6 +4,7 @@ import AuthNotFound from "../../components/authNotfound";
 import useAccountInfoStore from "../../stores/store";
 import withLayout from "../../components/layouts/withLayout";
 import { Toaster, toast } from "react-hot-toast";
+import { SiQuickbooks } from "react-icons/si";
 
 function ProfilePage({ accessToken, name }) {
   const [message, setMessage] = useState("Show Info");
@@ -17,6 +18,11 @@ function ProfilePage({ accessToken, name }) {
   const [timer, setTimer] = useState(30);
   const [showModal, setShowModal] = useState(false);
   const [emailConfirmation, setEmailConfirmation] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isLongEnough, setIsLongEnough] = useState(false);
+  const [hasUpperCase, setHasUpperCase] = useState(false);
+  const [hasSpecialChar, setHasSpecialChar] = useState(false);
+  const [isMatch, setIsMatch] = useState(false);
 
   useEffect(() => {
     setToken(sessionStorage.getItem("accessToken"));
@@ -143,14 +149,13 @@ function ProfilePage({ accessToken, name }) {
 
   const handleDeleteAccount = async () => {
     setShowModal(true);
-    
   };
 
-  const handleConfirmDelete = async() => {
+  const handleConfirmDelete = async () => {
     if (emailConfirmation === name) {
       // API call or method to delete the account
       // After successful deletion, hide the modal
-      
+
       setEmailConfirmation("");
       await deleteAccount();
       setShowModal(false);
@@ -177,6 +182,30 @@ function ProfilePage({ accessToken, name }) {
       console.error(error);
       toast.error("Please try again");
     }
+  };
+
+  const validatePassword = (password, confirmPassword) => {
+    const isValidLength = password.length >= 8;
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasSpecialChar = /[^A-Za-z0-9]/.test(password);
+    const isMatch = password === confirmPassword;
+
+    return isValidLength && hasUpperCase && hasSpecialChar && isMatch;
+  };
+
+  const handlePasswordChange = (e) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    setIsLongEnough(newPassword.length >= 8);
+    setHasUpperCase(/[A-Z]/.test(newPassword));
+    setHasSpecialChar(/[^A-Za-z0-9]/.test(newPassword));
+    setIsMatch(newPassword === confirmPassword);
+  };
+
+  const handleConfirmPasswordChange = (e) => {
+    const newConfirmPassword = e.target.value;
+    setConfirmPassword(newConfirmPassword);
+    setIsMatch(password === newConfirmPassword);
   };
 
   return token && token.length > 0 ? (
@@ -209,32 +238,49 @@ function ProfilePage({ accessToken, name }) {
 
       <div className="bg-white p-5 rounded-lg mt-5">
         <div className="text-lg font-bold p-2 ">Change Password</div>
-        <form onSubmit={handleNewPassword} className="p-2">
-          <div className="mb-4">
+
+        <form onSubmit={handlePasswordChange} className="p-2">
+          <div className="mb-1 mt-2">
             <label
               htmlFor="newPassword"
               className="block text-gray-700 text-sm font-medium mb-2"
             >
-              New Password:
+              New Password
             </label>
             <input
               type="text"
               id="newPassword"
               name="newPassword"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg focus:ring focus:ring-skyblue-200"
+              onChange={handlePasswordChange}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-skyblue-200"
+              disabled={isVerified}
+              required
+            />
+            <label
+              htmlFor="confirmPassword"
+              className="block text-gray-700 text-sm font-medium my-2"
+            >
+              Confirm Password
+            </label>
+            <input
+              type="text"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={confirmPassword}
+              className="w-full px-3 py-2 border rounded-lg focus:ring-skyblue-200"
+              onChange={(e) => handleConfirmPasswordChange(e)}
               disabled={isVerified}
               required
             />
           </div>
           {isVerified && (
-            <div className="mb-4" style={{ display: "inline-block" }}>
+            <div className="mb-2" >
               <label
                 htmlFor="verification_code"
                 className="block text-gray-700 text-sm font-medium mb-2"
               >
-                Verification Code:
+                Verification Code
               </label>
               <input
                 type="text"
@@ -257,27 +303,84 @@ function ProfilePage({ accessToken, name }) {
               >
                 Resend {canResend ? "" : `(${timer}s)`}
               </button>
+              <button
+                className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+                type="submit"
+                onClick={handleSubmitResetPassword}
+              >
+                Update Change
+              </button>
             </div>
           )}
-          <button
-            onClick={handleVerify}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            type="button"
-            style={{ display: isVerified ? "none" : "block" }}
-          >
-            Send Verification Code
-          </button>
-          {isVerified && (
-            <button
-              className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
-              type="submit"
-              onClick={handleSubmitResetPassword}
-            >
-              Update Change
-            </button>
+          {!isVerified && (
+            <div>
+              <p className="text-sm text-gray-600">
+                Make sure to meet requirements below:
+              </p>
+              <div className="rounded-md mb-3 mt-1 text-sm">
+                <ul className="list-disc pl-5">
+                  <li
+                    className={`${
+                      isLongEnough ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    At least 8 characters long
+                  </li>
+                  <li
+                    className={`${
+                      hasUpperCase ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    An uppercase letter
+                  </li>
+                  <li
+                    className={`${
+                      hasSpecialChar ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    A special character
+                  </li>
+                  <li
+                    className={`${isMatch ? "text-green-600" : "text-red-600"}`}
+                  >
+                    Passwords match
+                  </li>
+                </ul>
+              </div>
+              <button
+                onClick={handleVerify}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                type="button"
+                disabled={!validatePassword(password, confirmPassword)}
+              >
+                Send Verification Code
+              </button>
+            </div>
           )}
         </form>
       </div>
+      <div className="bg-white p-5 rounded-lg mt-5">
+        <div className="mt-2">
+          <div className="text-lg font-bold p-2 text-gray-700">Plugins</div>
+          <div className="p-2">
+            <p className="text-sm text-gray-600">
+              Connect to 3rd party plugins to import or export data from your
+              CPAL account. You can connect to Quickbooks, Plaid, and more.
+            </p>
+            <button
+              onClick={handleDeleteAccount}
+              className="mt-4 bg-green-500 hover:bg-green-700 flex text-white font-bold py-2 px-4 rounded"
+              type="button"
+            >
+              <div>
+                <SiQuickbooks className="text-2xl" />
+              </div>
+              <div className="ml-2">Connect to QuickBooks</div>
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-white p-5 rounded-lg mt-5">
         {/* ... All the other components from before ... */}
 
@@ -285,7 +388,8 @@ function ProfilePage({ accessToken, name }) {
           <div className="text-lg font-bold p-2 text-red-600">Danger Zone</div>
           <div className="p-2">
             <p className="text-sm text-gray-600">
-              Warning: These actions are irreversible. Proceed with caution.
+              Once you delete your account, there is no going back. Please be
+              certain.
             </p>
             <button
               onClick={handleDeleteAccount}

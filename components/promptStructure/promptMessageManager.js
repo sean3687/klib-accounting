@@ -66,7 +66,7 @@ export default function PromptMessageController({
     return (
       <div className="text-xs bg-red-200 rounded-md px-2 py-1 text-gray-700 flex items-center justify-center mr-2">
         <PiWarningCircle className="text-xl font-bold" />
-        <div>Failed</div>
+        <div>Failed. Are you sure it matches the type?</div>
       </div>
     );
   }
