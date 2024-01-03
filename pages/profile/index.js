@@ -4,7 +4,7 @@ import AuthNotFound from "../../components/authNotfound";
 import useAccountInfoStore from "../../stores/store";
 import withLayout from "../../components/layouts/withLayout";
 import { Toaster, toast } from "react-hot-toast";
-import { SiQuickbooks } from "react-icons/si";
+import { SiQuickbooks,SiSquare  } from "react-icons/si";
 
 function ProfilePage({ accessToken, name }) {
   const [message, setMessage] = useState("Show Info");
@@ -63,41 +63,6 @@ function ProfilePage({ accessToken, name }) {
       setMessage(response.data.message);
     }
   }
-  async function handleKey(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const openai_key = formData.get("openai_key");
-    const serp_key = formData.get("serp_key");
-
-    console.log("this is openai_key" + openai_key);
-    console.log("this is serp_key" + serp_key);
-
-    const bodyRequest = {
-      openai_key: openai_key,
-      serp_key: serp_key,
-    };
-    try {
-      const response = await axios.post(
-        "https://chitchatrabbit.me/cpal/set_api",
-        bodyRequest,
-        {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      setUserInfo(response.data);
-      console.log("api key has been updated ", response.data);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  }
-
-  const handleNewPassword = (e) => {
-    e.preventDefault();
-    // handle the form submission
-  };
 
   const handleVerify = async () => {
     setIsVerified(true);
@@ -206,6 +171,24 @@ function ProfilePage({ accessToken, name }) {
     const newConfirmPassword = e.target.value;
     setConfirmPassword(newConfirmPassword);
     setIsMatch(password === newConfirmPassword);
+  };
+
+  const handleConnectQuickBook = async () => {
+    try {
+      const response = await axios.get("http://52.53.127.143:8000/login_quickbooks", {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      console.log("this is response", response);
+      const redirect = response.data.auth_url
+      console.log("here is redirect link : ", redirect)
+      window.open(redirect, '_blank');
+      
+    } catch (error) {
+      console.error(error);
+      toast.error("Please try again");
+    }
   };
 
   return token && token.length > 0 ? (
@@ -368,7 +351,7 @@ function ProfilePage({ accessToken, name }) {
               CPAL account. You can connect to Quickbooks, Plaid, and more.
             </p>
             <button
-              onClick={handleDeleteAccount}
+              onClick={handleConnectQuickBook}
               className="mt-4 bg-green-500 hover:bg-green-700 flex text-white font-bold py-2 px-4 rounded"
               type="button"
             >
@@ -382,8 +365,6 @@ function ProfilePage({ accessToken, name }) {
       </div>
 
       <div className="bg-white p-5 rounded-lg mt-5">
-        {/* ... All the other components from before ... */}
-
         <div className="mt-2">
           <div className="text-lg font-bold p-2 text-red-600">Danger Zone</div>
           <div className="p-2">

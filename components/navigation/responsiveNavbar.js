@@ -357,7 +357,7 @@ function ResponsiveNavbar() {
       {/* Mobile Navigation */}
       <div className="bg-slate-100 items-center justify-center p-4 relative lg:hidden">
         {drawerOpen && (
-          <div className="fixed h-full inset-0 bg-black flex z-10 max-w-[100px]">
+          <div className="fixed h-full inset-0 flex z-10 max-w-[200vh]">
             <Navigation setDrawerOpen={drawerOpen} />
             {/* Close Button */}
             <button
