@@ -28,7 +28,7 @@ const AuthorizeQuickBook = () => {
   const exchangeToken = async () => {
     try {
       const response = await axios.post(
-        "http://52.53.127.143:8000/get_token/",
+        "https://cpal-admin.com:8000/get_token/",
         {
           code: code,
           realm_id: realmId,

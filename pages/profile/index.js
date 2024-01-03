@@ -175,7 +175,7 @@ function ProfilePage({ accessToken, name }) {
 
   const handleConnectQuickBook = async () => {
     try {
-      const response = await axios.get("http://52.53.127.143:8000/login_quickbooks", {
+      const response = await axios.get("https://cpal-admin.com:8000/login_quickbooks", {
         headers: {
           'Content-Type': 'application/json'
         }
