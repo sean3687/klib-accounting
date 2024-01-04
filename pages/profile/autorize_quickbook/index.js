@@ -26,20 +26,18 @@ const AuthorizeQuickBook = () => {
   }, [code, realmId]);
 
   const exchangeToken = async () => {
+
+    const body = {
+      code: code,
+      realmId: realmId,
+    };
+
     try {
       const response = await axios.post(
-        "https://cpal-admin.com/get_token/",
-        {
-          code: code,
-          realm_id: realmId,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+        "api/integration/getQuickbookToken",body
       );
 
+      console.log("in progress api route finish1", response.data);
       setQbAccessToken(response.data.access_token);
       setQbRefreshToken(response.data.refresh_token);
       console.log(
