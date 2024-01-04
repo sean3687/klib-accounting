@@ -29,7 +29,7 @@ const AuthorizeQuickBook = () => {
 
     try {
       const response = await axios.post(
-        "api/integration/postQuickbookToken",{
+        "/api/integration/postQuickbookToken",{
           code: code,
           realmId: realmId,
         }
