@@ -31,7 +31,7 @@ const AuthorizeQuickBook = () => {
       const response = await axios.post(
         "api/integration/postQuickbookToken",{
           code: code,
-          realm_id: realmId,
+          realmId: realmId,
         }
       );
 

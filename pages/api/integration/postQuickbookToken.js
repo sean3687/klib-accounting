@@ -2,7 +2,9 @@ import axios from "axios";
 
 export default async function handler(req, res) {
   
-  const body = req.body;
+  const {code, realmId} = req.body;
+
+  const body = { code: code, realm_id: realmId };
   console.log("here is the body from quickbook:", body)
  
   try {
