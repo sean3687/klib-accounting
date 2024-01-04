@@ -34,7 +34,7 @@ const AuthorizeQuickBook = () => {
 
     try {
       const response = await axios.post(
-        "api/integration/getQuickbookToken",body
+        "api/integration/postQuickbookToken",body
       );
 
       console.log("in progress api route finish1", response.data);

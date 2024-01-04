@@ -1,8 +1,9 @@
 import axios from "axios";
 
 export default async function handler(req, res) {
-    console.log("in progress api route finish1", req.body);
+  
   const body = req.body;
+  console.log("here is the body from quickbook:", body)
  
   try {
     const response = await axios.post(
