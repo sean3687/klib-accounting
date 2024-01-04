@@ -27,14 +27,12 @@ const AuthorizeQuickBook = () => {
 
   const exchangeToken = async () => {
 
-    const body = {
-      code: code,
-      realmId: realmId,
-    };
-
     try {
       const response = await axios.post(
-        "api/integration/postQuickbookToken",body
+        "api/integration/postQuickbookToken",{
+          code: code,
+          realm_id: realmId,
+        }
       );
 
       console.log("in progress api route finish1", response.data);
